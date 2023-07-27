@@ -1,0 +1,10 @@
+auth
+chrome_auth*
+node_modules
+
+output*.txt
+
+dist
+
+.env
+.env*
