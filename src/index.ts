@@ -6,8 +6,12 @@ import scrapeGDocs from "./scraper/googledocs";
 import { replaceFile, readGDocsHTML } from "./gcapi";
 import { replaceObject } from "./aws/S3";
 
+export let isDev = false;
+
 // handler
-export async function handler() {
+export default async function main(isDevelopment: boolean) {
+  isDev = isDevelopment;
+
   authorize(); // authorize google drive api
 
   // call all event handlers once at the start

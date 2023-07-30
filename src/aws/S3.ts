@@ -1,12 +1,29 @@
 import { PutObjectCommand, DeleteObjectCommand, GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { fromIni } from "@aws-sdk/credential-providers";
+import { isDev } from "../";
+
+function getClient(): S3Client {
+  const region = "us-east-1";
+  try {
+    if (isDev) {
+      return new S3Client({
+        region: region,
+        credentials: fromIni({ profile: "default" }),
+      });
+    } else {
+      return new S3Client({
+        region: region,
+      });
+    }
+  }
+  catch (err) {
+    throw new Error(`Error getting client: ${err}`);
+  }
+}
 
 export async function replaceObject(key: string, data: string) {
-  const client = new S3Client({
-    credentials: fromIni({ profile: "default" }),
-    region: "us-east-2",
-  });
-  const bucketName = "portfolio-bucket-albertliu";
+  const client = getClient();
+  const bucketName = "portfolio-bucket-albert";
 
   try {
     const found = await findObject(client, bucketName, key);
