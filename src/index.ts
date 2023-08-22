@@ -1,7 +1,7 @@
 import { authorize } from "./gcapi/auth";
 
 import scrapeGithub from "./scraper/github";
-import scrapeGDocs from "./scraper/googledocs";
+import { scrapePastExperiences, scrapeProjects } from "./scraper/googledocs/";
 
 import { replaceFile, readGDocsHTML } from "./gcapi";
 import { replaceObject } from "./aws/S3";
@@ -15,8 +15,9 @@ export default async function main(isDevelopment: boolean) {
   authorize(); // authorize google drive api
 
   // call all event handlers once at the start
-  console.log("handle google docs");
-  await handleGoogleDocs();
+  console.log("handle google docs by reading from google drive");
+  await handleProjects();
+  await handlePastExperiences();
 
   console.log("\nhandle github");
   await handleGithub();
@@ -39,16 +40,35 @@ async function handleGithub() {
   }
 }
 
-async function handleGoogleDocs() {
+async function handlePastExperiences() {
+  const C = "past-experiences";
   try {
-    // scrape data from google docs
-    console.log("handleGoogleDocs: scraping data from google docs");
-    const gdocsHTML = await readGDocsHTML("projects");
-    const projects = scrapeGDocs(gdocsHTML);
+    // scrape data from google docs past experiences
+    console.log("handleGoogleDocs: scraping data from google docs in", C);
+    const gdocsHTML = await readGDocsHTML(C);
+    const projects = scrapePastExperiences(gdocsHTML);
 
-    // store data to s3
-    console.log("handleGoogleDocs: storing data to s3");
-    await replaceObject("projects", JSON.stringify(projects));
+    // store data to s3 projects
+    console.log("handleGoogleDocs: storing data to s3 in", C);
+    await replaceObject(C, JSON.stringify(projects));
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function handleProjects() {
+  const C = "projects";
+
+  try {
+    // scrape data from google docs projects
+    console.log("handleGoogleDocs: scraping data from google docs in", C);
+    const gdocsHTML = await readGDocsHTML(C);
+    const projects = scrapeProjects(gdocsHTML);
+
+    // store data to s3 projects
+    console.log("handleGoogleDocs: storing data to s3 in", C);
+    await replaceObject(C, JSON.stringify(projects));
   } catch (error) {
     console.error(error);
   }

@@ -1,3 +1,13 @@
+export interface PastExperience {
+  onGoing: boolean;
+  type: string;
+  orgName: string;
+  position: string;
+  startingDate: string;
+  endingDate?: string;
+  description: string;
+}
+
 export interface Project {
   onGoing: boolean;
   projectName: string;

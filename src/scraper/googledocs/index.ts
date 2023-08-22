@@ -5,10 +5,10 @@ import {
 import {
   scrapeContentList, scrapeHeader
 } from "./scrape";
-import { Project } from "../../../types";
-import { mapToProject } from "../../util";
+import { Project, PastExperience } from "../../../types";
+import { mapToPastExperience, mapToProject } from "../../util";
 
-export default (content: string): Array<Project> => {
+export const scrapeProjects = (content: string): Array<Project> => {
   const $ = load(content);
 
   const headers = scrapeHeader($);
@@ -26,5 +26,26 @@ export default (content: string): Array<Project> => {
     throw new Error(`there is a mismatch between the number of 
       headers and the number of projects: headers length: ${headers.length}, 
       projectMapList length: ${projectMapList.length}`);
+  }
+}
+
+export const scrapePastExperiences = (content: string): Array<PastExperience> => {
+  const $ = load(content);
+
+  const headers = scrapeHeader($);
+  const pastExperienceMapList = scrapeContentList($);
+
+  if (headers.length === pastExperienceMapList.length) {
+    return headers.map((header, index) => {
+      const pastExperienceDictionary = pastExperienceMapList[index];
+
+      const project = mapToPastExperience(pastExperienceDictionary, header);
+      return project;
+    });
+  }
+  else {
+    throw new Error(`there is a mismatch between the number of 
+      headers and the number of past experiences : headers length: ${headers.length}, 
+      pastExperienceMapList length: ${pastExperienceMapList.length}`);
   }
 }

@@ -1,4 +1,46 @@
-import { Project } from "../../types";
+import { PastExperience, Project } from "../../types";
+
+export function mapToPastExperience(pastExperienceDictionary: Map<string, string>, header: string): PastExperience {
+  if (!pastExperienceDictionary) {
+    throw new Error(`pastExperienceDictionary is undefined for ${header}`);
+  }
+
+  const pastExperience = {} as PastExperience;
+
+  /// check on the required fields
+  const requiredFields = [
+    "onGoing",
+    "type",
+    "orgName",
+    "position",
+    "startingDate",
+    "description"
+  ];
+
+  // check if the object exists
+  checkRequiredFields(requiredFields, pastExperienceDictionary, header);
+
+  /// convert the dictionary to a pastExperience object required fields
+  const orgName = pastExperienceDictionary.get("orgName");
+  pastExperience.orgName = orgName ? orgName : "";
+
+  const startingDate = pastExperienceDictionary.get("startingDate");
+  pastExperience.startingDate = startingDate ? startingDate : "";
+
+  const position = pastExperienceDictionary.get("position");
+  pastExperience.position = position ? position : "";
+
+  const description = pastExperienceDictionary.get("description");
+  pastExperience.description = description ? description : "";
+
+  /// optional fields
+  const endingDate = pastExperienceDictionary.get("endingDate");
+  if (endingDate !== undefined) {
+    pastExperience.endingDate = endingDate;
+  }
+
+  return pastExperience;
+}
 
 export function mapToProject(projectDictionary: Map<string, string>, header: string): Project {
   if (!projectDictionary) {
@@ -16,11 +58,7 @@ export function mapToProject(projectDictionary: Map<string, string>, header: str
     "description"
   ];
 
-  requiredFields.forEach((field) => {
-    if (projectDictionary.get(field) === undefined) {
-      throw new Error(`required field ${field} is undefined for ${header}. \n${JSON.stringify(projectDictionary)}`);
-    }
-  });
+  checkRequiredFields(requiredFields, projectDictionary, header);
 
   /// convert the dictionary to a project object required fields
   const onGoing = projectDictionary.get("onGoing") === "true";
@@ -63,4 +101,12 @@ export function mapToProject(projectDictionary: Map<string, string>, header: str
   }
 
   return project;
+}
+
+function checkRequiredFields(requiredFields: string[], projectDictionary: Map<string, string>, header: string) {
+  requiredFields.forEach((field) => {
+    if (projectDictionary.get(field) === undefined) {
+      throw new Error(`required field ${field} is undefined for ${header}. \n${JSON.stringify(projectDictionary)}`);
+    }
+  });
 }
